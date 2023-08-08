@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 
 export default function StarRating({ maxRating = 5 }) {
-  const [rating, setRating] = useState(1);
+  const [rating, setRating] = useState(0);
+  const [tmpRating, setTmpRating] = useState(0);
 
   function handleRating(rating) {
     setRating(rating);
@@ -25,7 +26,9 @@ export default function StarRating({ maxRating = 5 }) {
           <Start
             key={i}
             onRate={() => handleRating(i + 1)}
-            full={rating >= i + 1}
+            onHoverIn={() => setTmpRating(i + 1)}
+            onHoverOut={() => setTmpRating(0)}
+            full={tmpRating ? tmpRating >= i + 1 : rating >= i + 1}
           />
         ))}
         <p
@@ -34,17 +37,19 @@ export default function StarRating({ maxRating = 5 }) {
             margin: 0,
           }}
         >
-          {rating || ''}
+          {tmpRating || rating || ''}
         </p>
       </div>
     </div>
   );
 }
 
-function Start({ onRate, full }) {
+function Start({ onRate, full, onHoverIn, onHoverOut }) {
   return (
     <span
       onClick={onRate}
+      onMouseEnter={onHoverIn}
+      onMouseLeave={onHoverOut}
       role="button"
       style={{
         width: '48px',
