@@ -51,23 +51,33 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const KEY = 'a129e92e';
+const tmpQuery = 'interstellar';
 
 export default function App() {
+  const [query, setQuery] = useState('');
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(function () {
     async function fetchMovie() {
-      setIsLoading(true);
-      const res = await fetch(
-        `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=interstellar`
-      );
+      try {
+        setIsLoading(true);
+        const res = await fetch(
+          `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${tmpQuery}`
+        );
+        // if (!res.ok) throw new Error('Could not fetch movies from API');
 
-      const data = await res.json();
-      setMovies(data.Search);
-      setIsLoading(false);
+        const data = await res.json();
+        if (data.Response === 'False') throw new Error(data.Error);
+        setMovies(data.Search);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
     }
     fetchMovie();
   }, []);
@@ -80,7 +90,15 @@ export default function App() {
         <NumResult movies={movies} />
       </NavBar>
       <Main movies={movies}>
-        <Box element={isLoading ? <Loader /> : <MovieList movies={movies} />} />
+        <Box
+          element={
+            <>
+              {isLoading && <Loader />}
+              {!isLoading && !error && <MovieList movies={movies} />}
+              {error && <ErrorMessage message={error} />}
+            </>
+          }
+        />
         <Box
           element={
             <>
@@ -97,6 +115,10 @@ export default function App() {
 
 function Loader() {
   return <p className="loader">Loading ...</p>;
+}
+
+function ErrorMessage({ message }) {
+  return <p className="error">{message}</p>;
 }
 
 function NavBar({ children }) {
@@ -120,8 +142,7 @@ function NumResult({ movies }) {
   );
 }
 
-function Search() {
-  const [query, setQuery] = useState('');
+function Search({ query, setQuery }) {
   return (
     <input
       className="search"
