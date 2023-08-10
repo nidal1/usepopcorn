@@ -61,32 +61,41 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(function () {
-    async function fetchMovie() {
-      try {
-        setIsLoading(true);
-        const res = await fetch(
-          `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${tmpQuery}`
-        );
-        // if (!res.ok) throw new Error('Could not fetch movies from API');
+  useEffect(
+    function () {
+      async function fetchMovie() {
+        try {
+          setIsLoading(true);
+          setError('');
+          const res = await fetch(
+            `http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`
+          );
+          // if (!res.ok) throw new Error('Could not fetch movies from API');
 
-        const data = await res.json();
-        if (data.Response === 'False') throw new Error(data.Error);
-        setMovies(data.Search);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
+          const data = await res.json();
+          if (data.Response === 'False') throw new Error(data.Error);
+          setMovies(data.Search);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
       }
-    }
-    fetchMovie();
-  }, []);
+      if (query.length < 3) {
+        setMovies([]);
+        setError('');
+        return;
+      }
+      fetchMovie();
+    },
+    [query]
+  );
 
   return (
     <>
       <NavBar>
         <Logo />
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResult movies={movies} />
       </NavBar>
       <Main movies={movies}>
@@ -137,7 +146,7 @@ function Logo() {
 function NumResult({ movies }) {
   return (
     <p className="num-results">
-      Found <strong>{movies.length}</strong> results
+      Found <strong>{movies?.length}</strong> results
     </p>
   );
 }
