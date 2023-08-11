@@ -69,6 +69,11 @@ export function MovieDetails({
     getMovieDetails();
   }, [selectedId]);
 
+  useEffect(() => {
+    if (!title) return;
+    document.title = title;
+  }, [title]);
+
   return (
     <div className="details">
       {isLoading && !error && <Loader />}
