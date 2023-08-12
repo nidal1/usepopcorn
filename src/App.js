@@ -68,7 +68,10 @@ const tmpQuery = 'interstellar';
 export default function App() {
   const [query, setQuery] = useState('');
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
+  const [watched, setWatched] = useState(function () {
+    const storedMovies = localStorage.getItem('watched');
+    return JSON.parse(storedMovies) || [];
+  });
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -89,6 +92,10 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((w) => w.filter((w) => w.imdbID !== id));
   }
+
+  useEffect(() => {
+    localStorage.setItem('watched', JSON.stringify(watched));
+  }, [watched]);
 
   useEffect(
     function () {
