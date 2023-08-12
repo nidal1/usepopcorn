@@ -70,6 +70,19 @@ export function MovieDetails({
   }, [selectedId]);
 
   useEffect(() => {
+    const callback = function (e) {
+      if (e.code === 'Escape') {
+        onCloseMovie();
+      }
+    };
+    document.addEventListener('keydown', callback);
+
+    return () => {
+      document.removeEventListener('keydown', callback);
+    };
+  }, [onCloseMovie]);
+
+  useEffect(() => {
     if (!title) return;
     document.title = title;
 

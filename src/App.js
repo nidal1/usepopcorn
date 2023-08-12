@@ -66,7 +66,7 @@ export const KEY = 'a129e92e';
 const tmpQuery = 'interstellar';
 
 export default function App() {
-  const [query, setQuery] = useState('inception');
+  const [query, setQuery] = useState('');
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
 
@@ -119,6 +119,7 @@ export default function App() {
         setError('');
         return;
       }
+      handleCloseMovie();
       fetchMovie();
 
       return () => {
